@@ -1,3 +1,20 @@
+function debounce(func, wait, immediate) {
+  var timeout;
+  return function() {
+      var context = this,
+          args = arguments;
+      var later = function() {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+  };
+};
+
+
 ///////////////////////////////
 // Data loading stuff
 ///////////////////////////////
@@ -300,8 +317,7 @@ function startThree() {
     // paleStars.rotation.y += force;
   }
 
-  window.addEventListener( "mousemove", onDocumentMouseMove, false );
-
+  let activeObjectId = null;
   var selectedObject = null;
 
   function onDocumentMouseMove( event ) {
@@ -320,7 +336,11 @@ function startThree() {
 
       } )[ 0 ];
 
-      console.log(res)
+      // console.log(res)
+      const id = thissector[res.index].id.split("/").pop();
+      if (id !== activeObjectId) {
+        getVAndAObject(id)
+      }
 
       if ( res && res.object ) {
         reticle.material.color.set(0x00aa00)
@@ -344,6 +364,10 @@ function startThree() {
     return raycaster.intersectObject( brightStars, true );
 
   }
+
+  const debouncedOnDocumentMouseMove = debounce(onDocumentMouseMove, 200);
+
+  window.addEventListener( "mousemove", debouncedOnDocumentMouseMove, false );
 
   animate();
 }
