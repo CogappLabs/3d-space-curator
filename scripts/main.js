@@ -35,6 +35,20 @@ function isInCurrentSector(obj) {
          && obj.z < size && obj.z > -size;
 }
 
+function getObjectsForSector(a, b, c) {
+  let size = 10;
+  res = [];
+  for (let i = 0; i < data.length; i++) {
+    let obj = data[i];
+    if (obj.type == 'OBJECT'
+      && obj.x < a * size + size && obj.x > a * size - size
+      && obj.y < a * size + size && obj.y > a * size - size
+      && obj.z < a * size + size && obj.z > a * size - size) {
+      res.push(obj);
+    }
+  }
+  return res;
+}
 
 // create a web worker that streams the chart data
 const streamingLoaderWorker = new Worker("scripts/streaming-tsv-parser.js");
@@ -51,7 +65,8 @@ streamingLoaderWorker.onmessage = ({
     .filter(d => d.label);
   data = data.concat(rows);
   if (finished) {
-    thissector.push(...data.filter(isInCurrentSector));
+    // thissector.push(...data.filter(isInCurrentSector));
+    thissector.push(...getObjectsForSector(0,0,0));
 
     document.getElementById("loadingIndicator").innerHTML = "<a class=\"button\" onclick=\"closeLoadingPane()\">Explore</a>";
 
