@@ -30,6 +30,10 @@ body {
   grid-column: 2 / 3;
 }
 
+.object-image {
+  border: 2px solid #00aa00;;
+}
+
 .controls {
   grid-row: 2;
   grid-column: 3 / 4;
