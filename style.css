@@ -34,3 +34,17 @@ body {
   grid-row: 2;
   grid-column: 3 / 4;
 }
+
+.controls-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.controls-list li + li {
+  margin-top: 1em;
+}
+
+.key {
+  border: 2px solid #00aa00;
+  padding: 4px;
+}
