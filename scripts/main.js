@@ -12,7 +12,8 @@ function onlyUnique(value, index, self) {
 
 function isInCurrentSector(obj) {
   let size = 10;
-  return obj.x < size && obj.x > -size
+  return obj.type == 'OBJECT'
+         && obj.x < size && obj.x > -size
          && obj.y < size && obj.y > -size
          && obj.z < size && obj.z > -size;
 }
@@ -43,8 +44,9 @@ streamingLoaderWorker.onmessage = ({
   }
 };
 
-streamingLoaderWorker.postMessage('../data/tabular_data_sciencemuseum.tsv');
-//streamingLoaderWorker.postMessage('../data/tabular_data_vam_ac_uk.tsv');
+//streamingLoaderWorker.postMessage('../data/tabular_data_both.tsv');
+//streamingLoaderWorker.postMessage('../data/tabular_data_sciencemuseum.tsv');
+streamingLoaderWorker.postMessage('../data/tabular_data_vam_ac_uk.tsv');
 
 function startThree() {
 
