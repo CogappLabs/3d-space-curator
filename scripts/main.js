@@ -35,6 +35,11 @@ const starShineTexture = new THREE.TextureLoader().load(
   "../images/star-shine.png"
 );
 
+var SCALE = 8;
+
+var CursorSize = 5
+
+
 let effectPass;
 let moveForward = false;
 let moveBackward = false;
@@ -99,6 +104,14 @@ scene.add(mediumStars);
 scene.add(paleStars);
 
 scene.add(controls.getObject());
+
+var reticle = new THREE.Mesh(
+  new THREE.RingBufferGeometry( 0.9 * CursorSize, CursorSize, 32),
+  new THREE.MeshBasicMaterial( {color: 0xffffff, blending: THREE.AdditiveBlending, side: THREE.DoubleSide })
+);
+reticle.position.z = -3 * SCALE;
+reticle.lookAt(camera.position)
+camera.add(reticle);
 
 const onKeyDown = (event) => {
   switch (event.code) {
@@ -181,11 +194,11 @@ const composer = new POSTPROCESSING.EffectComposer(renderer);
 composer.addPass(new POSTPROCESSING.RenderPass(scene, camera));
 composer.addPass(effectPass);
 
-window.addEventListener("resize", () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-});
+// window.addEventListener("resize", () => {
+//   renderer.setSize(window.innerWidth, window.innerHeight);
+//   camera.aspect = window.innerWidth / window.innerHeight;
+//   camera.updateProjectionMatrix();
+// });
 
 function animate(time) {
   if (needRender) {
@@ -229,6 +242,51 @@ function rotateUniverse(force = 0.0003) {
   brightStars.rotation.y += force;
   mediumStars.rotation.y += force;
   paleStars.rotation.y += force;
+}
+
+window.addEventListener( "mousemove", onDocumentMouseMove, false );
+
+var selectedObject = null;
+
+function onDocumentMouseMove( event ) {
+	event.preventDefault();
+	if ( selectedObject ) {
+		selectedObject = null;
+    reticle.material.color.set(0xffffff)
+  }
+
+	var intersects = getIntersects( event.layerX, event.layerY );
+	if ( intersects.length > 0 ) {
+
+		var res = intersects.filter( function ( res ) {
+
+			return res && res.object;
+
+		} )[ 0 ];
+
+    console.log(res)
+
+		if ( res && res.object ) {
+      reticle.material.color.set(0x4444aa)
+			selectedObject = res.object;
+		}
+	}
+}
+
+var raycaster = new THREE.Raycaster();
+// var mouseVector = new THREE.Vector3();
+
+function getIntersects( x, y ) {
+
+	// x = ( x / window.innerWidth ) * 2 - 1;
+	// y = - ( y / window.innerHeight ) * 2 + 1;
+
+	// mouseVector.set( x, y, 0.5 );
+  // This should use the centre of the viewport
+	raycaster.setFromCamera( new THREE.Vector2(), camera );
+
+	return raycaster.intersectObject( brightStars, true );
+
 }
 
 animate();
