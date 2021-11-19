@@ -246,6 +246,9 @@ function startThree() {
       case "KeyD":
         moveRight = false;
         break;
+      case "KeyB":
+        pushToBookmarks(activeObject)
+        break;
     }
   };
 
@@ -332,7 +335,7 @@ function startThree() {
     // paleStars.rotation.y += force;
   }
 
-  let activeObjectId = null;
+  let activeObject = null;
   var selectedObject = null;
 
   function onDocumentMouseMove( event ) {
@@ -351,11 +354,11 @@ function startThree() {
 
       } )[ 0 ];
 
-      // console.log(res)
-      const id = thissector[res.index].id.split("/").pop();
-      if (id !== activeObjectId) {
-        getVAndAObject(id)
+      if (thissector[res.index].id !== activeObject?.id) {
+        getVAndAObject(thissector[res.index].id)
       }
+
+      activeObject = thissector[res.index]
 
       if ( res && res.object ) {
         reticle.material.color.set(0x00aa00)

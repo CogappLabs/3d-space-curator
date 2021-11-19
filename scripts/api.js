@@ -4,7 +4,12 @@ const VAndAEndpoint =
 const titleElement = document.querySelector('.object-title')
 const imageElement = document.querySelector('.object-image')
 
-async function getVAndAObject (id) {
+const bookmarksList = document.querySelector('.bookmarks-list')
+// const bookmarks = [];
+
+async function getVAndAObject (url) {
+  const id = url.split("/").pop();
+
   await fetch(`${VAndAEndpoint}${id}`)
     .then((response) => response.json())
     .then((data) => {
@@ -15,7 +20,7 @@ async function getVAndAObject (id) {
         // titleElement.innerHTML = data.records[0]._primaryTitle;
 
         if (data.records[0]._images?._iiif_image_base_url) {
-          imageElement.setAttribute('src', `${data.records[0]._images._iiif_image_base_url}/full/!300,300/0/default.jpg`)
+          imageElement.setAttribute('src', `${data.records[0]._images._iiif_image_base_url}full/!300,300/0/default.jpg`)
         }
       }
     })
@@ -29,4 +34,11 @@ async function getScienceMuseumObject (url) {
   })
     .then(response => response.json())
     .then(data => console.log(data));
+}
+
+const pushToBookmarks = (object) => {
+  if (object) {
+    bookmarksList.innerHTML += `<li><a href="${object.id}" target="_blank">${titleElement.innerHTML}</a></li>`
+  }
+
 }

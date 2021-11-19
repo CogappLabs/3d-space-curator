@@ -7,6 +7,10 @@ body {
   font-family: 'Press Start 2P', cursive;
 }
 
+a {
+  color: #00aa00;
+}
+
 .layout {
   height: 100vh;
   width: 100vw;
