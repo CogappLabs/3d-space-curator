@@ -42,11 +42,12 @@ function getObjectsForSector(a, b, c) {
     let obj = data[i];
     if (obj.type == 'OBJECT'
       && obj.x < a * size + size && obj.x > a * size - size
-      && obj.y < a * size + size && obj.y > a * size - size
-      && obj.z < a * size + size && obj.z > a * size - size) {
+      && obj.y < b * size + size && obj.y > b * size - size
+      && obj.z < c * size + size && obj.z > c * size - size) {
       res.push(obj);
     }
   }
+  console.log('sector (' + a + ','+ b + ','+ c + ') has ' + res.length + ' objects')
   return res;
 }
 
@@ -225,7 +226,11 @@ function startThree() {
       case "KeyD":
         moveRight = true;
         break;
-    }
+      case "KeyH":
+        console.log('hyperspace');
+        hyperspace();
+        break;
+        }
   };
 
   const onKeyUp = (event) => {
@@ -386,6 +391,20 @@ function startThree() {
   const debouncedOnDocumentMouseMove = debounce(onDocumentMouseMove, 200);
 
   window.addEventListener( "mousemove", debouncedOnDocumentMouseMove, false );
+
+  function hyperspace() {
+    let a =  parseInt(Math.random() * 4);
+    let b =  parseInt(Math.random() * 4);
+    let c =  parseInt(Math.random() * 4);
+    thissector = getObjectsForSector(a,b,c);
+    const brightStars = new THREE.Points(
+      getStarsGeometry(),
+      getStarsMaterial(starShineTexture, 1)
+    );
+
+    scene.add(brightStars);
+
+  }
 
   animate();
 }
