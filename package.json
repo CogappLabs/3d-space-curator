@@ -1,0 +1,18 @@
+{
+  "name": "3d-space-curator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "serve"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "serve": "^13.0.2"
+  },
+  "dependencies": {
+    "three": "^0.134.0"
+  }
+}
