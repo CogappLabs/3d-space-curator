@@ -69,11 +69,11 @@ streamingLoaderWorker.onmessage = ({
     // thissector.push(...data.filter(isInCurrentSector));
     thissector.push(...getObjectsForSector(0,0,0));
 
-    document.getElementById("loadingIndicator").innerHTML = "<a class=\"button\" onclick=\"closeLoadingPane()\">Explore</a>";
+    document.querySelector(".loading-indicator").innerHTML = "Click to explore";
+    document.querySelector(".loading-indicator").classList.add("hide");
 
     console.log('just added objects in this sector: ' + thissector.length);
     startThree();
-
   }
 };
 

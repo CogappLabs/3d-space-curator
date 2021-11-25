@@ -4,7 +4,21 @@ body {
   padding: 0;
   background-color: #000;
   color: #00aa00;
-  font-family: 'Press Start 2P', cursive;
+  font-family: 'Press Start 2P', sans-serif;
+}
+
+.loading-indicator {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: opacity 2s ease;
+  transition-delay: 5s;
+}
+
+.loading-indicator.hide {
+  opacity: 0;
 }
 
 a {
@@ -27,20 +41,23 @@ a {
 .history {
   grid-row: 2;
   grid-column: 1 / 2;
+  border-top: 2px solid #00aa00;
 }
 
 .object-data {
   grid-row: 2;
   grid-column: 2 / 3;
+  border-top: 2px solid #00aa00;
 }
 
 .object-image {
-  border: 2px solid #00aa00;;
+  border: 2px solid #00aa00;
 }
 
 .controls {
   grid-row: 2;
   grid-column: 3 / 4;
+  border-top: 2px solid #00aa00;
 }
 
 .controls-list {
