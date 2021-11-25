@@ -78,8 +78,8 @@ streamingLoaderWorker.onmessage = ({
 };
 
 //streamingLoaderWorker.postMessage('../data/tabular_data_both.tsv');
-//streamingLoaderWorker.postMessage('../data/tabular_data_sciencemuseum.tsv');
-streamingLoaderWorker.postMessage('../data/tabular_data_vam_ac_uk.tsv');
+streamingLoaderWorker.postMessage('../data/tabular_data_sciencemuseum.tsv');
+// streamingLoaderWorker.postMessage('../data/tabular_data_vam_ac_uk.tsv');
 
 function startThree() {
 
@@ -191,12 +191,12 @@ function startThree() {
     });
   }
 
-  const brightStars = new THREE.Points(
+  const stars = new THREE.Points(
     getStarsGeometry(),
     getStarsMaterial(starShineTexture, 1)
   );
 
-  scene.add(brightStars);
+  scene.add(stars);
 
   scene.add(controls.getObject());
 
@@ -284,7 +284,7 @@ function startThree() {
   // TODO - Add on postprocessing to make the speed zoom effect
   const godRaysEffect = new POSTPROCESSING.GodRaysEffect(
     camera,
-    brightStars,
+    stars,
     godRaysEffectOptions
   );
 
@@ -313,16 +313,15 @@ function startThree() {
 
       controls.moveRight(-velocity.x * delta);
       controls.moveForward(-velocity.z * delta);
+
+      camera.position.y -= 0.05;
+      rotateUniverse();
     }
     prevTimePerf = time;
 
-    camera.position.y -= 0.05;
-
     // let current = Math.random();
 
-    // if (current > 0.6 && current < 0.65) mediumStars.material.opacity = current;
-
-    rotateUniverse();
+    // if (current > 0.6 && current < 0.65) stars.material.opacity = current;
 
     requestAnimationFrame(animate);
   }
@@ -335,9 +334,7 @@ function startThree() {
   });
 
   function rotateUniverse(force = 0.0003) {
-    brightStars.rotation.y += force;
-    // mediumStars.rotation.y += force;
-    // paleStars.rotation.y += force;
+    stars.rotation.y += force;
   }
 
   let activeObject = null;
@@ -345,27 +342,29 @@ function startThree() {
 
   function onDocumentMouseMove( event ) {
     event.preventDefault();
-    if ( selectedObject ) {
+    if (selectedObject) {
       selectedObject = null;
       reticle.material.color.set(0xff0000)
     }
 
     var intersects = getIntersects( event.layerX, event.layerY );
-    if ( intersects.length > 0 ) {
-
-      var res = intersects.filter( function ( res ) {
-
+    if (intersects.length > 0) {
+      var res = intersects.filter(function(res) {
         return res && res.object;
-
-      } )[ 0 ];
+      })[0];
 
       if (thissector[res.index].id !== activeObject?.id) {
-        getVAndAObject(thissector[res.index].id)
+        if (thissector[res.index].id.includes('collections.vam.ac.uk')) {
+          getVAndAObject(thissector[res.index].id)
+        }
+        if (thissector[res.index].id.includes('collection.sciencemuseumgroup.org.uk')) {
+          getScienceMuseumObject(thissector[res.index].id)
+        }
       }
 
       activeObject = thissector[res.index]
 
-      if ( res && res.object ) {
+      if (res && res.object) {
         reticle.material.color.set(0x00aa00)
         selectedObject = res.object;
       }
@@ -373,19 +372,12 @@ function startThree() {
   }
 
   var raycaster = new THREE.Raycaster();
-  // var mouseVector = new THREE.Vector3();
 
   function getIntersects( x, y ) {
-
-    // x = ( x / window.innerWidth ) * 2 - 1;
-    // y = - ( y / window.innerHeight ) * 2 + 1;
-
-    // mouseVector.set( x, y, 0.5 );
     // This should use the centre of the viewport
     raycaster.setFromCamera( new THREE.Vector2(), camera );
 
-    return raycaster.intersectObject( brightStars, true );
-
+    return raycaster.intersectObject( stars, true );
   }
 
   const debouncedOnDocumentMouseMove = debounce(onDocumentMouseMove, 200);
@@ -397,12 +389,12 @@ function startThree() {
     let b =  parseInt(Math.random() * 4);
     let c =  parseInt(Math.random() * 4);
     thissector = getObjectsForSector(a,b,c);
-    const brightStars = new THREE.Points(
+    const stars = new THREE.Points(
       getStarsGeometry(),
       getStarsMaterial(starShineTexture, 1)
     );
 
-    scene.add(brightStars);
+    scene.add(stars);
 
   }
 

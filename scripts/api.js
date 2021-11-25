@@ -5,7 +5,6 @@ const titleElement = document.querySelector('.object-title')
 const imageElement = document.querySelector('.object-image')
 
 const bookmarksList = document.querySelector('.bookmarks-list')
-// const bookmarks = [];
 
 async function getVAndAObject (url) {
   const id = url.split("/").pop();
@@ -17,10 +16,11 @@ async function getVAndAObject (url) {
 
       if (data.records.length === 1) {
         titleElement.innerHTML = data.records[0]._primaryTitle;
-        // titleElement.innerHTML = data.records[0]._primaryTitle;
 
         if (data.records[0]._images?._iiif_image_base_url) {
           imageElement.setAttribute('src', `${data.records[0]._images._iiif_image_base_url}full/!300,300/0/default.jpg`)
+        } else {
+          imageElement.setAttribute('src', '')
         }
       }
     })
@@ -33,12 +33,22 @@ async function getScienceMuseumObject (url) {
     headers : {'Accept': 'application/json' }
   })
     .then(response => response.json())
-    .then(data => console.log(data));
+    .then(data => {
+      console.log(data)
+
+      if (data?.data?.attributes?.summary_title) {
+        titleElement.innerHTML = data.data.attributes.summary_title
+      }
+      if (data?.data?.attributes?.multimedia && data.data.attributes.multimedia.length > 0 && data.data.attributes.multimedia[0].processed?.large_thumbnail) {
+        imageElement.setAttribute('src', data.data.attributes.multimedia[0].processed.large_thumbnail.location)
+      } else {
+        imageElement.setAttribute('src', '')
+      }
+    });
 }
 
 const pushToBookmarks = (object) => {
   if (object) {
     bookmarksList.innerHTML += `<li><a href="${object.id}" target="_blank">${titleElement.innerHTML}</a></li>`
   }
-
 }

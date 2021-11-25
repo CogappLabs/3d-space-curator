@@ -38,10 +38,14 @@ a {
   grid-column: 1 / -1;
 }
 
-.history {
+.bookmarks {
   grid-row: 2;
   grid-column: 1 / 2;
   border-top: 2px solid #00aa00;
+}
+
+.bookmarks-list:empty::before {
+  content: 'No bookmarks. Press B to bookmark the selected object.';
 }
 
 .object-data {
@@ -52,6 +56,10 @@ a {
 
 .object-image {
   border: 2px solid #00aa00;
+}
+
+.object-image[src=""] {
+  display: none;
 }
 
 .controls {
