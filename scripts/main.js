@@ -29,8 +29,7 @@ function onlyUnique(value, index, self) {
 
 function isInCurrentSector(obj) {
   let size = 10;
-  return obj.type == 'OBJECT'
-         && obj.x < size && obj.x > -size
+  return obj.x < size && obj.x > -size
          && obj.y < size && obj.y > -size
          && obj.z < size && obj.z > -size;
 }
@@ -40,8 +39,7 @@ function getObjectsForSector(a, b, c) {
   res = [];
   for (let i = 0; i < data.length; i++) {
     let obj = data[i];
-    if (obj.type == 'OBJECT'
-      && obj.x < a * size + size && obj.x > a * size - size
+    if (obj.x < a * size + size && obj.x > a * size - size
       && obj.y < b * size + size && obj.y > b * size - size
       && obj.z < c * size + size && obj.z > c * size - size) {
       res.push(obj);
@@ -77,9 +75,9 @@ streamingLoaderWorker.onmessage = ({
   }
 };
 
-//streamingLoaderWorker.postMessage('../data/tabular_data_both.tsv');
-streamingLoaderWorker.postMessage('../data/tabular_data_sciencemuseum.tsv');
-// streamingLoaderWorker.postMessage('../data/tabular_data_vam_ac_uk.tsv');
+streamingLoaderWorker.postMessage('../data/tabular_data_objects.tsv');
+//streamingLoaderWorker.postMessage('../data/tabular_data_sciencemuseum.tsv');
+//streamingLoaderWorker.postMessage('../data/tabular_data_vam_ac_uk.tsv');
 
 function startThree() {
 
@@ -149,7 +147,7 @@ function startThree() {
     return geometry;
   }
 
-  // original function
+  // original function for reference
   function getVerticesInRandomPosition(max = 200000) {
     const vertices = [];
 
@@ -226,10 +224,6 @@ function startThree() {
       case "KeyD":
         moveRight = true;
         break;
-      case "KeyH":
-        console.log('hyperspace');
-        hyperspace();
-        break;
         }
   };
 
@@ -254,7 +248,13 @@ function startThree() {
       case "KeyB":
         pushToBookmarks(activeObject)
         break;
-    }
+      case "KeyH":
+        hyperspace();
+        break;
+      case "KeyP":
+        velocity.x = velocity.y = velocity.z = 0;
+        break;
+        }
   };
 
   document.addEventListener("keydown", onKeyDown);
@@ -385,10 +385,11 @@ function startThree() {
   window.addEventListener( "mousemove", debouncedOnDocumentMouseMove, false );
 
   function hyperspace() {
-    let a =  parseInt(Math.random() * 4);
-    let b =  parseInt(Math.random() * 4);
-    let c =  parseInt(Math.random() * 4);
-    thissector = getObjectsForSector(a,b,c);
+    let nSectors = 10;
+    let a =  parseInt(Math.random() * nSectors);
+    let b =  parseInt(Math.random() * nSectors);
+    let c =  parseInt(Math.random() * nSectors);
+    thissector.push(...getObjectsForSector(a,b,c));
     const stars = new THREE.Points(
       getStarsGeometry(),
       getStarsMaterial(starShineTexture, 1)
