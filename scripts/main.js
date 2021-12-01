@@ -244,6 +244,7 @@ function startThree() {
       //   break;
       case "Escape":
         setIsFreeLookEnabled(false);
+        break;
       case "KeyB":
         pushToBookmarks(activeObject)
         break;
