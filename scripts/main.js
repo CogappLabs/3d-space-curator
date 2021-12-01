@@ -1,20 +1,3 @@
-function debounce(func, wait, immediate) {
-  var timeout;
-  return function() {
-      var context = this,
-          args = arguments;
-      var later = function() {
-          timeout = null;
-          if (!immediate) func.apply(context, args);
-      };
-      var callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) func.apply(context, args);
-  };
-};
-
-
 ///////////////////////////////
 // Data loading stuff
 ///////////////////////////////
@@ -35,7 +18,6 @@ function isInCurrentSector(obj) {
 }
 
 function getObjectsForSector(a, b, c) {
-  console.log('total objects: ' + data.length )
   let size = 10;
   res = [];
   for (let i = 0; i < data.length; i++) {
@@ -52,11 +34,6 @@ function getObjectsForSector(a, b, c) {
 
   console.log('sector (' + a + ','+ b + ','+ c + ') has ' + res.length + ' objects');
   //console.log('last one is (' + parseInt(res[res.length - 1].x) + ',' + parseInt(res[res.length - 1].y) + ',' + parseInt(res[res.length - 1].z) + ')');
-
-  if (res.length < 500) {
-    console.log('too few objects!');
-    // hyperspace();
-  }
 
   return res;
 }
@@ -76,6 +53,7 @@ streamingLoaderWorker.onmessage = ({
     .filter(d => d.label);
   data = data.concat(rows);
   if (finished) {
+    console.log('total objects: ' + data.length )
 
     //thissector.push(...getObjectsForSector(0,0,0));
     thissector = getObjectsForSector(0,0,0);
@@ -91,6 +69,27 @@ streamingLoaderWorker.onmessage = ({
 streamingLoaderWorker.postMessage('../data/tabular_data_objects.tsv');
 //streamingLoaderWorker.postMessage('../data/tabular_data_sciencemuseum.tsv');
 //streamingLoaderWorker.postMessage('../data/tabular_data_vam_ac_uk.tsv');
+
+///////////////////////////////
+// Utilities
+///////////////////////////////
+
+function debounce(func, wait, immediate) {
+  var timeout;
+  return function() {
+      var context = this,
+          args = arguments;
+      var later = function() {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+  };
+};
+
 
 function startThree() {
 
@@ -140,12 +139,9 @@ function startThree() {
   // const velocity = new THREE.Vector3();
   // const direction = new THREE.Vector3();
 
-  const starTexture = new THREE.TextureLoader().load("../images/star.png");
   const starShineTexture = new THREE.TextureLoader().load(
     "../images/star-shine.png"
   );
-
-  var SCALE = 8;
 
   // Multiplier to use between heritage connector coordinates and those used by three.js
   var HCSCALE = 100;
@@ -153,10 +149,6 @@ function startThree() {
   var CursorSize = 1
 
   let effectPass;
-  // let moveForward = false;
-  // let moveBackward = false;
-  // let moveLeft = false;
-  // let moveRight = false;
   let prevTimePerf = performance.now();
 
   function getStarsGeometry(max) {
@@ -238,22 +230,6 @@ function startThree() {
 
   const onKeyDown = (event) => {
     switch (event.code) {
-      // case "ArrowUp":
-      // case "KeyW":
-      //   moveForward = true;
-      //   break;
-      // case "ArrowLeft":
-      // case "KeyA":
-      //   moveLeft = true;
-      //   break;
-      // case "ArrowDown":
-      // case "KeyS":
-      //   moveBackward = true;
-      //   break;
-      // case "ArrowRight":
-      // case "KeyD":
-      //   moveRight = true;
-      //   break;
       case "Escape":
         setIsFreeLookEnabled(false);
         break;
@@ -270,37 +246,6 @@ function startThree() {
         break;
     }
   };
-
-  // const onKeyUp = (event) => {
-  //   switch (event.code) {
-  //     case "ArrowUp":
-  //     case "KeyW":
-  //       moveForward = false;
-  //       break;
-  //     case "ArrowLeft":
-  //     case "KeyA":
-  //       moveLeft = false;
-  //       break;
-  //     case "ArrowDown":
-  //     case "KeyS":
-  //       moveBackward = false;
-  //       break;
-  //     case "ArrowRight":
-  //     case "KeyD":
-  //       moveRight = false;
-  //       break;
-  //     case "KeyB":
-  //       pushToBookmarks(activeObject)
-  //       break;
-  //     case "KeyH":
-  //       hyperspace();
-  //       break;
-  //     case "KeyP":
-  //       // *P*ut on the brakes
-  //       velocity.x = velocity.y = velocity.z = 0;
-  //       break;
-  //   }
-  // };
 
   document.addEventListener("keydown", onKeyDown);
   // document.addEventListener("keyup", onKeyUp);
@@ -444,30 +389,37 @@ function startThree() {
   window.addEventListener( "mousemove", debouncedOnDocumentMouseMove, false );
 
   function hyperspace() {
-    let nSectors = 5;
+    let nSectors = 4; // space is very sparse: increasing this to e.g. 10 just finds lots of places with very few objects.
     let a =  parseInt(Math.random() * nSectors);
     let b =  parseInt(Math.random() * nSectors);
     let c =  parseInt(Math.random() * nSectors);
     //thissector.push(...getObjectsForSector(a,b,c));
     thissector = getObjectsForSector(a,b,c);
-    stars = new THREE.Points(
-      getStarsGeometry(),
-      getStarsMaterial(starShineTexture, 1)
-    );
 
-    var selectedObject = scene.getObjectByName('stars');
-    scene.remove( selectedObject );
+    if (thissector.length < 500) {
+      console.log('too few objects!');
+      hyperspace();
+    } else {
+      stars = new THREE.Points(
+        getStarsGeometry(),
+        getStarsMaterial(starShineTexture, 1)
+      );
 
-    stars.name = "stars";
-    scene.add(stars);
+      var selectedObject = scene.getObjectByName('stars');
+      scene.remove( selectedObject );
 
-    // move camera
-    camera.position.x = a * HCSCALE * 10;
-    camera.position.y = b * HCSCALE * 10;
-    camera.position.z = c * HCSCALE * 10;
-    //camera.lookAt(0, 0, 0);
+      stars.name = "stars";
+      scene.add(stars);
 
-    //document.getElementById('sector').innerHTML = 'position: ' + camera.position.x + ',' + camera.position.y + ',' + camera.position.z;
+      // move camera
+      camera.position.x = a * HCSCALE * 10;
+      camera.position.y = b * HCSCALE * 10;
+      camera.position.z = c * HCSCALE * 10;
+      //camera.lookAt(0, 0, 0);
+
+      //document.getElementById('sector').innerHTML = 'position: ' + camera.position.x + ',' + camera.position.y + ',' + camera.position.z;
+
+    }
 
   }
 
