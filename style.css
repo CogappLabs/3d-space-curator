@@ -36,12 +36,26 @@ a {
 .renderer {
   grid-row: 1;
   grid-column: 1 / -1;
+  position: relative;
+}
+
+.reticle {
+  display: block;
+  height: 20px;
+  width: 20px;
+  position: absolute;
+  border: 3px solid #ff0000;
+  border-radius: 20px;
+  top: calc(50% - 10px);
+  left: calc(50% - 10px);
 }
 
 .bookmarks {
   grid-row: 2;
   grid-column: 1 / 2;
   border-top: 2px solid #00aa00;
+  max-height: calc(50vh - 20px);
+  overflow-y: scroll;
 }
 
 .bookmarks-list:empty::before {
@@ -52,10 +66,20 @@ a {
   grid-row: 2;
   grid-column: 2 / 3;
   border-top: 2px solid #00aa00;
+  max-height: calc(50vh - 20px);
+  display: flex;
+  flex-direction: column;
+}
+
+.object-title {
+  margin-top: 0;
 }
 
 .object-image {
   border: 2px solid #00aa00;
+  height: 100%;
+  width: auto;
+  align-self: start;
 }
 
 .object-image[src=""] {

@@ -91,6 +91,8 @@ function startThree() {
   const scene = new THREE.Scene();
   window.scene = scene;
 
+  const clock = new THREE.Clock();
+
   const renderer = new THREE.WebGLRenderer({
     powerPreference: "high-performance",
     antialias: false,
@@ -101,8 +103,9 @@ function startThree() {
   renderer.setClearColor(0xffffff, 0);
   renderer.domElement.id = "wormhole";
 
-  const rendererContainer = document.querySelector('.renderer')
+  const rendererContainer = document.querySelector('.renderer');
   rendererContainer.appendChild(renderer.domElement);
+  const reticleElement = document.querySelector('.reticle');
 
   const camera = new THREE.PerspectiveCamera(
     100,
@@ -115,9 +118,16 @@ function startThree() {
   camera.position.z = 0;
   camera.lookAt(0, 0, 0);
 
-  const controls = new THREE.PointerLockControls(camera, rendererContainer);
-  const velocity = new THREE.Vector3();
-  const direction = new THREE.Vector3();
+  const controls = new THREE.FlyControls(camera, rendererContainer);
+
+  controls.domElement = rendererContainer;
+  controls.movementSpeed = 0;
+  controls.rollSpeed = 0;
+  controls.autoForward = false;
+  controls.dragToLook = false;
+
+  // const velocity = new THREE.Vector3();
+  // const direction = new THREE.Vector3();
 
   const starTexture = new THREE.TextureLoader().load("../images/star.png");
   const starShineTexture = new THREE.TextureLoader().load(
@@ -132,10 +142,10 @@ function startThree() {
   var CursorSize = 1
 
   let effectPass;
-  let moveForward = false;
-  let moveBackward = false;
-  let moveLeft = false;
-  let moveRight = false;
+  // let moveForward = false;
+  // let moveBackward = false;
+  // let moveLeft = false;
+  // let moveRight = false;
   let prevTimePerf = performance.now();
 
   function getStarsGeometry(max) {
@@ -147,6 +157,20 @@ function startThree() {
     );
 
     return geometry;
+  }
+
+  let isFreeLookEnabled = false;
+
+  function setIsFreeLookEnabled(isEnabled) {
+    isFreeLookEnabled = isEnabled
+
+    if (isFreeLookEnabled) {
+      controls.movementSpeed = 100;
+      controls.rollSpeed = Math.PI / 12;
+    } else {
+      controls.movementSpeed = 0;
+      controls.rollSpeed = 0;
+    }
   }
 
   // original function
@@ -198,68 +222,65 @@ function startThree() {
 
   scene.add(stars);
 
-  scene.add(controls.getObject());
-
-  var reticle = new THREE.Mesh(
-    new THREE.RingBufferGeometry( 0.5 * CursorSize, CursorSize, 32),
-    new THREE.MeshBasicMaterial( {color: 0xff0000, blending: THREE.AdditiveBlending, side: THREE.DoubleSide })
-  );
-  reticle.position.z = -1.5 * SCALE;
-  reticle.lookAt(camera.position)
-  camera.add(reticle);
+  // scene.add(controls.getObject());
 
   const onKeyDown = (event) => {
     switch (event.code) {
-      case "ArrowUp":
-      case "KeyW":
-        moveForward = true;
-        break;
-      case "ArrowLeft":
-      case "KeyA":
-        moveLeft = true;
-        break;
-      case "ArrowDown":
-      case "KeyS":
-        moveBackward = true;
-        break;
-      case "ArrowRight":
-      case "KeyD":
-        moveRight = true;
+      // case "ArrowUp":
+      // case "KeyW":
+      //   moveForward = true;
+      //   break;
+      // case "ArrowLeft":
+      // case "KeyA":
+      //   moveLeft = true;
+      //   break;
+      // case "ArrowDown":
+      // case "KeyS":
+      //   moveBackward = true;
+      //   break;
+      // case "ArrowRight":
+      // case "KeyD":
+      //   moveRight = true;
+      //   break;
+      case "Escape":
+        setIsFreeLookEnabled(false);
+      case "KeyB":
+        pushToBookmarks(activeObject)
         break;
       case "KeyH":
         console.log('hyperspace');
         hyperspace();
         break;
-        }
-  };
-
-  const onKeyUp = (event) => {
-    switch (event.code) {
-      case "ArrowUp":
-      case "KeyW":
-        moveForward = false;
-        break;
-      case "ArrowLeft":
-      case "KeyA":
-        moveLeft = false;
-        break;
-      case "ArrowDown":
-      case "KeyS":
-        moveBackward = false;
-        break;
-      case "ArrowRight":
-      case "KeyD":
-        moveRight = false;
-        break;
-      case "KeyB":
-        pushToBookmarks(activeObject)
-        break;
     }
   };
 
+  // const onKeyUp = (event) => {
+  //   switch (event.code) {
+  //     case "ArrowUp":
+  //     case "KeyW":
+  //       moveForward = false;
+  //       break;
+  //     case "ArrowLeft":
+  //     case "KeyA":
+  //       moveLeft = false;
+  //       break;
+  //     case "ArrowDown":
+  //     case "KeyS":
+  //       moveBackward = false;
+  //       break;
+  //     case "ArrowRight":
+  //     case "KeyD":
+  //       moveRight = false;
+  //       break;
+  //     case "KeyB":
+  //       pushToBookmarks(activeObject)
+  //       break;
+  //   }
+  // };
+
   document.addEventListener("keydown", onKeyDown);
-  document.addEventListener("keyup", onKeyUp);
-  document.addEventListener("click", () => controls.lock());
+  // document.addEventListener("keyup", onKeyUp);
+  // document.addEventListener("click", () => controls.lock());
 
   const bloomEffect = new POSTPROCESSING.BloomEffect({
     blendFunction: POSTPROCESSING.BlendFunction.SCREEN,
@@ -302,21 +323,26 @@ function startThree() {
     }
 
     const timePerf = performance.now();
-    if (controls.isLocked === true) {
-      const delta = (timePerf - prevTimePerf) / 1000;
+    // if (controls.isLocked === true) {
+      // const delta = (timePerf - prevTimePerf) / 1000;
+      const delta = clock.getDelta();
 
-      direction.z = Number(moveForward) - Number(moveBackward);
-      direction.x = Number(moveRight) - Number(moveLeft);
+      // direction.z = Number(moveForward) - Number(moveBackward);
+      // direction.x = Number(moveRight) - Number(moveLeft);
 
-      if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-      if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+      // if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+      // if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
 
-      controls.moveRight(-velocity.x * delta);
-      controls.moveForward(-velocity.z * delta);
+      // controls.moveRight(-velocity.x * delta);
+      // controls.moveForward(-velocity.z * delta);
 
-      camera.position.y -= 0.05;
-      rotateUniverse();
-    }
+      controls.update(1 * delta);
+
+    // }
+    // else {
+    //   camera.position.y -= 0.05;
+    //   rotateUniverse();
+    // }
     prevTimePerf = time;
 
     // let current = Math.random();
@@ -333,6 +359,10 @@ function startThree() {
     camera.updateProjectionMatrix();
   });
 
+  rendererContainer.addEventListener('click', () => {
+    setIsFreeLookEnabled(true);
+  })
+
   function rotateUniverse(force = 0.0003) {
     stars.rotation.y += force;
   }
@@ -344,7 +374,7 @@ function startThree() {
     event.preventDefault();
     if (selectedObject) {
       selectedObject = null;
-      reticle.material.color.set(0xff0000)
+      reticleElement.style.borderColor = '#ff0000'
     }
 
     var intersects = getIntersects( event.layerX, event.layerY );
@@ -353,7 +383,9 @@ function startThree() {
         return res && res.object;
       })[0];
 
+      // If this is a new object selected
       if (thissector[res.index].id !== activeObject?.id) {
+        // From the V&A
         if (thissector[res.index].id.includes('collections.vam.ac.uk')) {
           getVAndAObject(thissector[res.index].id)
         }
@@ -365,7 +397,7 @@ function startThree() {
       activeObject = thissector[res.index]
 
       if (res && res.object) {
-        reticle.material.color.set(0x00aa00)
+        reticleElement.style.borderColor = '#00aa00';
         selectedObject = res.object;
       }
     }
@@ -380,6 +412,9 @@ function startThree() {
     return raycaster.intersectObject( stars, true );
   }
 
+  // TODO Don't debounce this event listener. Make it so that
+  // you have to hover over the same star for n frames before the selected
+  // object changes
   const debouncedOnDocumentMouseMove = debounce(onDocumentMouseMove, 200);
 
   window.addEventListener( "mousemove", debouncedOnDocumentMouseMove, false );
