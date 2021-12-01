@@ -35,6 +35,7 @@ function isInCurrentSector(obj) {
 }
 
 function getObjectsForSector(a, b, c) {
+  console.log('total objects: ' + data.length )
   let size = 10;
   res = [];
   for (let i = 0; i < data.length; i++) {
@@ -45,7 +46,18 @@ function getObjectsForSector(a, b, c) {
       res.push(obj);
     }
   }
-  console.log('sector (' + a + ','+ b + ','+ c + ') has ' + res.length + ' objects')
+
+  document.getElementById('sector').innerHTML = '(' + a + ','+ b + ','+ c + ')';
+  document.getElementById('no_objects').innerHTML = res.length.toLocaleString("en-UK");;
+
+  console.log('sector (' + a + ','+ b + ','+ c + ') has ' + res.length + ' objects');
+  //console.log('last one is (' + parseInt(res[res.length - 1].x) + ',' + parseInt(res[res.length - 1].y) + ',' + parseInt(res[res.length - 1].z) + ')');
+
+  if (res.length < 500) {
+    console.log('too few objects!');
+    // hyperspace();
+  }
+
   return res;
 }
 
@@ -64,8 +76,9 @@ streamingLoaderWorker.onmessage = ({
     .filter(d => d.label);
   data = data.concat(rows);
   if (finished) {
-    // thissector.push(...data.filter(isInCurrentSector));
-    thissector.push(...getObjectsForSector(0,0,0));
+
+    //thissector.push(...getObjectsForSector(0,0,0));
+    thissector = getObjectsForSector(0,0,0);
 
     document.querySelector(".loading-indicator").innerHTML = "Click to explore";
     document.querySelector(".loading-indicator").classList.add("hide");
@@ -189,11 +202,12 @@ function startThree() {
     });
   }
 
-  const stars = new THREE.Points(
+  var stars = new THREE.Points(
     getStarsGeometry(),
     getStarsMaterial(starShineTexture, 1)
   );
 
+  stars.name = "stars";
   scene.add(stars);
 
   scene.add(controls.getObject());
@@ -252,6 +266,7 @@ function startThree() {
         hyperspace();
         break;
       case "KeyP":
+        // *P*ut on the brakes
         velocity.x = velocity.y = velocity.z = 0;
         break;
         }
@@ -385,19 +400,33 @@ function startThree() {
   window.addEventListener( "mousemove", debouncedOnDocumentMouseMove, false );
 
   function hyperspace() {
-    let nSectors = 10;
+    let nSectors = 5;
     let a =  parseInt(Math.random() * nSectors);
     let b =  parseInt(Math.random() * nSectors);
     let c =  parseInt(Math.random() * nSectors);
-    thissector.push(...getObjectsForSector(a,b,c));
-    const stars = new THREE.Points(
+    //thissector.push(...getObjectsForSector(a,b,c));
+    thissector = getObjectsForSector(a,b,c);
+    stars = new THREE.Points(
       getStarsGeometry(),
       getStarsMaterial(starShineTexture, 1)
     );
 
+    var selectedObject = scene.getObjectByName('stars');
+    scene.remove( selectedObject );
+
+    stars.name = "stars";
     scene.add(stars);
 
+    // move camera
+    camera.position.x = a * HCSCALE * 10;
+    camera.position.y = b * HCSCALE * 10;
+    camera.position.z = c * HCSCALE * 10;
+    //camera.lookAt(0, 0, 0);
+
+    //document.getElementById('sector').innerHTML = 'position: ' + camera.position.x + ',' + camera.position.y + ',' + camera.position.z;
+
   }
+
 
   animate();
 }
