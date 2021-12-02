@@ -140,7 +140,7 @@ function startThree() {
   // const direction = new THREE.Vector3();
 
   const starShineTexture = new THREE.TextureLoader().load(
-    "../images/star-shine.png"
+    "images/star-shine.png"
   );
 
   // Multiplier to use between heritage connector coordinates and those used by three.js
