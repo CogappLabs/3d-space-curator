@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "serve": "^13.0.2"
+    "serve": "^14.2.3"
   },
   "dependencies": {
-    "three": "^0.134.0"
+    "three": "^0.169.0"
   }
 }
